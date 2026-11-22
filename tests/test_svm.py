@@ -1,0 +1,73 @@
+import numpy as np
+import pytest
+
+from src.models.svm import SVM
+
+
+def test_linear_kernel_separates_two_classes():
+    X = np.array(
+        [
+            [-2.0, -1.0],
+            [-1.0, -1.0],
+            [-1.0, -2.0],
+            [1.0, 1.0],
+            [2.0, 1.0],
+            [1.0, 2.0],
+        ]
+    )
+    y = np.array([0, 0, 0, 1, 1, 1])
+
+    model = SVM(kernel="linear", C=1.0).fit(X, y)
+
+    assert np.mean(model.predict(X) == y) == 1.0
+
+
+def test_gaussian_kernel_handles_non_linear_data():
+    rng = np.random.default_rng(42)
+    inner = rng.normal(scale=0.3, size=(12, 2))
+    outer = rng.normal(scale=0.3, size=(12, 2)) + np.array([2.0, 0.0])
+    X = np.vstack([inner, outer])
+    y = np.array([0] * 12 + [1] * 12)
+
+    model = SVM(kernel="gaussian", gamma=1.0, C=10.0).fit(X, y)
+
+    assert np.mean(model.predict(X) == y) >= 0.9
+
+
+def test_polynomial_kernel_handles_xor():
+    X = np.array([[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]])
+    y = np.array([0, 1, 1, 0])
+
+    model = SVM(kernel="poly", degree=2, gamma=1.0, coef0=1.0, C=10.0).fit(X, y)
+
+    assert np.mean(model.predict(X) == y) >= 0.9
+
+
+def test_multiclass_uses_one_vs_one():
+    X = np.array(
+        [
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [5.0, 5.0],
+            [5.0, 6.0],
+            [10.0, 0.0],
+            [10.0, 1.0],
+        ]
+    )
+    y = np.array([0, 0, 1, 1, 2, 2])
+
+    model = SVM(kernel="linear", C=1.0).fit(X, y)
+
+    assert np.mean(model.predict(X) == y) == 1.0
+
+
+def test_linear_kernel_handles_noisy_data():
+    rng = np.random.default_rng(0)
+    X0 = rng.normal(loc=(-1.0, -1.0), scale=1.0, size=(100, 2))
+    X1 = rng.normal(loc=(1.0, 1.0), scale=1.0, size=(100, 2))
+    X = np.vstack([X0, X1])
+    y = np.array([0] * 100 + [1] * 100)
+
+    model = SVM(kernel="linear", C=1.0, learning_rate=0.01, epochs=200).fit(X, y)
+
+    assert np.mean(model.predict(X) == y) >= 0.85
