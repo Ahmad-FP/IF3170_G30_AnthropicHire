@@ -63,3 +63,26 @@ def test_constant_feature_does_not_divide_by_zero():
 
     assert np.all(np.isfinite(proba))
     assert np.allclose(proba.sum(axis=1), 1.0)
+
+
+def test_bayesian_network_alias_is_available():
+    assert issubclass(BayesianNetwork, NaiveBayes)
+
+
+def test_balanced_class_weight_normalizes_priors():
+    X = np.array([[0.0], [1.0], [5.0], [6.0], [7.0], [8.0]])
+    y = np.array([0, 0, 0, 1, 1, 1])
+
+    model = NaiveBayes(class_weight="balanced").fit(X, y)
+
+    assert model.class_prior_.sum() == pytest.approx(1.0)
+    assert np.allclose(np.exp(model.class_log_prior_), model.class_prior_)
+
+
+def test_custom_class_prior_is_normalized():
+    X = np.array([[0.0], [1.0], [5.0], [6.0]])
+    y = np.array([0, 0, 1, 1])
+
+    model = NaiveBayes(class_prior=np.array([1.0, 3.0])).fit(X, y)
+
+    assert model.class_prior_.tolist() == pytest.approx([0.25, 0.75])

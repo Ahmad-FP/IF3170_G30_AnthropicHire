@@ -21,6 +21,7 @@ from scratch untuk kompetisi Kaggle `T2-IF3170-2026-2027` (metrik macro F1).
 KNN, Decision Tree, Logistic Regression, SVM, dan Naive Bayes wajib **from
 scratch** dengan NumPy (pandas untuk I/O). scikit-learn hanya dipakai untuk
 preprocessing dan pembanding; submission final memakai model from scratch.
+Aturan ini dijaga oleh `tests/test_from_scratch.py`.
 
 ## Data
 

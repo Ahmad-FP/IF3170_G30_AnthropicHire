@@ -71,3 +71,72 @@ def test_linear_kernel_handles_noisy_data():
     model = SVM(kernel="linear", C=1.0, learning_rate=0.01, epochs=200).fit(X, y)
 
     assert np.mean(model.predict(X) == y) >= 0.85
+
+
+def test_predict_proba_rows_sum_to_one():
+    X = np.array(
+        [
+            [-2.0, -1.0],
+            [-1.0, -1.0],
+            [-1.0, -2.0],
+            [1.0, 1.0],
+            [2.0, 1.0],
+            [1.0, 2.0],
+        ]
+    )
+    y = np.array([0, 0, 0, 1, 1, 1])
+
+    model = SVM(kernel="linear", C=1.0).fit(X, y)
+    proba = model.predict_proba(X)
+
+    assert proba.shape == (len(X), 2)
+    assert np.allclose(proba.sum(axis=1), 1.0)
+
+
+def test_invalid_kernel_rejected_at_init():
+    with pytest.raises(ValueError, match="kernel"):
+        SVM(kernel="sigmoid")
+
+
+def test_polynomial_alias_matches_poly():
+    X = np.array([[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]])
+    y = np.array([0, 1, 1, 0])
+
+    poly = SVM(kernel="poly", degree=2, gamma=1.0, coef0=1.0, C=10.0).fit(X, y)
+    polynomial = SVM(
+        kernel="polynomial", degree=2, gamma=1.0, coef0=1.0, C=10.0
+    ).fit(X, y)
+
+    np.testing.assert_array_equal(poly.predict(X), polynomial.predict(X))
+
+
+def test_gamma_auto_and_decision_function():
+    X = np.array([[0.0, 0.0], [0.0, 1.0], [5.0, 5.0], [5.0, 6.0]])
+    y = np.array([0, 0, 1, 1])
+
+    model = SVM(kernel="gaussian", gamma="auto", C=10.0).fit(X, y)
+    scores = model.decision_function(X)
+
+    assert model.gamma_ == pytest.approx(1.0 / X.shape[1])
+    assert scores.shape == (len(X),)
+    assert np.all(np.isfinite(scores))
+
+
+def test_multiclass_predict_proba_rows_sum_to_one():
+    X = np.array(
+        [
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [5.0, 5.0],
+            [5.0, 6.0],
+            [10.0, 0.0],
+            [10.0, 1.0],
+        ]
+    )
+    y = np.array([0, 0, 1, 1, 2, 2])
+
+    model = SVM(kernel="linear", C=1.0).fit(X, y)
+    proba = model.predict_proba(X)
+
+    assert proba.shape == (len(X), 3)
+    assert np.allclose(proba.sum(axis=1), 1.0)

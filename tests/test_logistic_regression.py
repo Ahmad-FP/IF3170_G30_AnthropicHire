@@ -72,3 +72,31 @@ def test_multiclass_softmax():
 
     assert np.mean(model.predict(X) == y) == 1.0
     assert model.predict_proba(X).shape == (len(X), 3)
+
+
+def test_invalid_regularization_rejected():
+    with pytest.raises(ValueError, match="regularization"):
+        LogisticRegression(regularization="l3")
+
+
+def test_balanced_class_weight_learns_imbalanced_data():
+    rng = np.random.default_rng(0)
+    X = np.vstack([rng.normal(-2, 0.5, (60, 2)), rng.normal(2, 0.5, (20, 2))])
+    y = np.array([0] * 60 + [1] * 20)
+
+    model = LogisticRegression(
+        learning_rate=0.5, epochs=400, class_weight="balanced"
+    ).fit(X, y)
+
+    assert model.predict(X).tolist().count(1) >= 10
+    assert np.allclose(model.predict_proba(X).sum(axis=1), 1.0)
+
+
+def test_constant_feature_produces_finite_probabilities():
+    X = np.array([[0.0, 0.0], [0.0, 1.0], [0.0, 5.0], [0.0, 6.0]])
+    y = np.array([0, 0, 1, 1])
+
+    model = LogisticRegression(learning_rate=0.5, epochs=200).fit(X, y)
+
+    assert np.all(np.isfinite(model.predict_proba(X)))
+    assert np.all(np.isfinite(model.loss_history_))

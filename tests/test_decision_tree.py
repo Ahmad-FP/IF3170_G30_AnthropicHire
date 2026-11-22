@@ -64,3 +64,37 @@ def test_constant_target_returns_single_leaf():
 
     assert pred.tolist() == [1, 1, 1]
     assert model.get_depth() == 0
+
+
+def test_feature_importances_sum_to_one():
+    X = np.array([[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [10.0, 10.0], [10.0, 11.0]])
+    y = np.array([0, 0, 0, 1, 1])
+
+    model = DecisionTree(max_depth=4).fit(X, y)
+
+    assert model.feature_importances_.shape == (2,)
+    assert model.feature_importances_.sum() == pytest.approx(1.0)
+
+
+def test_max_depth_is_respected():
+    rng = np.random.default_rng(0)
+    X = rng.normal(size=(80, 3))
+    y = (X[:, 0] + X[:, 1] > 0).astype(int)
+
+    model = DecisionTree(max_depth=2).fit(X, y)
+
+    assert model.get_depth() <= 2
+
+
+def test_dataframe_columns_are_reordered_to_fit_order():
+    X = pd.DataFrame({"a": [0.0, 1.0, 10.0, 11.0], "b": [0, 0, 1, 1]})
+    y = np.array([0, 0, 1, 1])
+    model = DecisionTree(max_depth=3).fit(X, y)
+
+    reordered = X[["b", "a"]]
+    assert model.predict(reordered).tolist() == [0, 0, 1, 1]
+
+
+def test_invalid_criterion_rejected():
+    with pytest.raises(ValueError, match="criterion"):
+        DecisionTree(criterion="chi2")
