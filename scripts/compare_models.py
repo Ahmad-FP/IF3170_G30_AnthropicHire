@@ -87,7 +87,7 @@ def main() -> None:
 
     run(
         "dtl_scratch",
-        DecisionTree(criterion="gini", max_depth=12, min_samples_leaf=5),
+        DecisionTree(criterion="entropy", max_depth=12, min_samples_leaf=5),
         X_train,
         y_train,
         X_val,
@@ -97,7 +97,7 @@ def main() -> None:
     run(
         "dtl_sklearn",
         DecisionTreeClassifier(
-            criterion="gini", max_depth=12, min_samples_leaf=5, random_state=42
+            criterion="entropy", max_depth=12, min_samples_leaf=5, random_state=42
         ),
         X_train,
         y_train,
