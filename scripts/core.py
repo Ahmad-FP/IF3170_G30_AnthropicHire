@@ -216,7 +216,8 @@ def main() -> None:
 
     best = str(table.iloc[0]["model"])
     plot_scores(table, FIG / "model_comparison.png")
-    plot_confusion(y_val, predictions[best], best, FIG / f"confusion_{best}.png")
+    for name in table["model"]:
+        plot_confusion(y_val, predictions[name], name, FIG / f"confusion_{name}.png")
     plot_class_balance(y_train, y_val, FIG / "class_balance.png")
 
     print(f"\nbest: {best} (macro F1 {table.iloc[0]['macro_f1']:.4f})")
