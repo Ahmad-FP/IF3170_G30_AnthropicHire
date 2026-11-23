@@ -1,4 +1,4 @@
-.PHONY: help venv install kernel test clean notebook-main kaggle-submit
+.PHONY: help venv install kernel test clean core notebook-main kaggle-submit
 
 SHELL := /bin/bash
 PYTHON := .venv/bin/python
@@ -18,6 +18,7 @@ help:
 	@echo "  make install        - Install dependencies dari requirements.txt"
 	@echo "  make kernel         - Daftarkan kernel Jupyter untuk proyek ini"
 	@echo "  make test           - Jalankan unit & reproducibility test dengan pytest"
+	@echo "  make core           - Jalankan pipeline core: load -> preprocess -> model -> grafik"
 	@echo "  make notebook-main  - Jalankan notebook utama secara headless (SEED=$(SEED))"
 	@echo "  make kaggle-submit  - Upload submission ke Kaggle (butuh COMPETITION=...)"
 	@echo "  make clean          - Hapus cache, pytest cache, dan file sementara"
@@ -34,6 +35,9 @@ kernel: install
 
 test:
 	$(PYTEST) -v tests/
+
+core:
+	$(PYTHON) scripts/core.py
 
 notebook-main:
 	SEED=$(SEED) $(JUPYTER) nbconvert --to notebook --execute --inplace $(NOTEBOOK_MAIN)

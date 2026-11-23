@@ -11,6 +11,7 @@ from scratch untuk kompetisi Kaggle `T2-IF3170-2026-2027` (metrik macro F1).
 | `src/models/` | satu file per model, kontrak `fit` / `predict` / `predict_proba` |
 | `scripts/export_prepared.py` | regenerate `output/prepared/*` dari `data/raw/*` |
 | `scripts/check_model.py` | harness cepat: macro F1 validasi, cek `predict_proba`, simpan pkl |
+| `scripts/core.py` | pipeline ujung-ke-ujung: load → preprocessing → semua model → tabel + grafik di `output/figures/` |
 | `scripts/baseline.py` | smoke test pipeline + submission placeholder |
 | `notebooks/00_main_pipeline.ipynb` | template notebook tugas besar |
 | `docs/` | ringkasan EDA |
@@ -57,6 +58,12 @@ Baseline pipeline (butuh `data/raw/`):
 ```bash
 .venv/bin/python scripts/export_prepared.py
 .venv/bin/python scripts/baseline.py
+```
+
+Pipeline lengkap (raw CSV kalau ada, kalau tidak pakai `output/prepared/`):
+
+```bash
+make core    # output/core_model_comparison.csv + output/figures/*.png
 ```
 
 Baseline sklearn Logistic Regression: val macro F1 **0.7547**.
