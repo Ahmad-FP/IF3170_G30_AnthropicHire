@@ -1,9 +1,8 @@
-.PHONY: help venv install kernel test clean core notebook-main kaggle-submit
+.PHONY: help venv install kernel clean core notebook-main kaggle-submit
 
 SHELL := /bin/bash
 PYTHON := .venv/bin/python
 PIP := .venv/bin/pip
-PYTEST := .venv/bin/pytest
 JUPYTER := .venv/bin/jupyter
 KAGGLE := .venv/bin/kaggle
 
@@ -17,7 +16,6 @@ help:
 	@echo "  make venv           - Buat virtual environment (.venv)"
 	@echo "  make install        - Install dependencies dari requirements.txt"
 	@echo "  make kernel         - Daftarkan kernel Jupyter untuk proyek ini"
-	@echo "  make test           - Jalankan unit & reproducibility test dengan pytest"
 	@echo "  make core           - Jalankan pipeline core: load -> preprocess -> model -> grafik"
 	@echo "  make notebook-main  - Jalankan notebook utama secara headless (SEED=$(SEED))"
 	@echo "  make kaggle-submit  - Upload submission ke Kaggle (butuh COMPETITION=...)"
@@ -32,9 +30,6 @@ install: venv
 
 kernel: install
 	$(PYTHON) -m ipykernel install --user --name=ml-tim-project --display-name="Python (ml-tim-project)"
-
-test:
-	$(PYTEST) -v tests/
 
 core:
 	$(PYTHON) scripts/core.py

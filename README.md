@@ -22,7 +22,6 @@ from scratch untuk kompetisi Kaggle `T2-IF3170-2026-2027` (metrik macro F1).
 KNN, Decision Tree, Logistic Regression, SVM, dan Naive Bayes wajib **from
 scratch** dengan NumPy (pandas untuk I/O). scikit-learn hanya dipakai untuk
 preprocessing dan pembanding; submission final memakai model from scratch.
-Aturan ini dijaga oleh `tests/test_from_scratch.py`.
 
 ## Data
 
@@ -51,6 +50,13 @@ Kalau tidak mengubah pipeline, tidak perlu download ulang.
 ```bash
 make venv install
 .venv/bin/python scripts/check_model.py src.models._template:TemplateModel
+```
+
+Notebook (Jupyter dari `.venv` + kernel terdaftar):
+
+```bash
+make kernel
+.venv/bin/jupyter lab    # pilih kernel "Python (ml-tim-project)"
 ```
 
 Baseline pipeline (butuh `data/raw/`):
