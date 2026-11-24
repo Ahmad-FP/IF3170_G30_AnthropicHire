@@ -44,5 +44,5 @@ kaggle-submit:
 
 clean:
 	rm -rf .pytest_cache __pycache__ notebooks/.ipynb_checkpoints
-	find src tests scripts -type d -name "__pycache__" -exec rm -rf {} +
-	find src tests scripts -type f -name "*.py[cod]" -delete
+	find src scripts -type d -name "__pycache__" -exec rm -rf {} +
+	find src scripts -type f -name "*.py[cod]" -delete
