@@ -149,3 +149,47 @@ class CategoricalNaiveBayes(NaiveBayes):
 
 class BayesianNetwork(NaiveBayes):
     pass
+
+def macro_f1(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """Macro F1 murni NumPy (dipakai di dalam CV; di notebook boleh pakai sklearn)"""
+    scores = []
+    for c in np.unique(y_true):
+        tp = np.sum((y_pred == c) & (y_true == c))
+        fp = np.sum((y_pred == c) & (y_true != c))
+        fn = np.sum((y_pred != c) & (y_true == c))
+        d = 2 * tp + fp + fn
+        scores.append(0.0 if d == 0 else 2 * tp / d)
+    return float(np.mean(scores))
+
+
+def backward_elimination(X, y, make_model, n_splits: int = 5, seed: int = 42, tol: float = 1e-4):
+    """Return (indeks_fitur_terpilih, riwayat[(indeks_dibuang, skor_cv)])"""
+    X = np.asarray(X, dtype=np.float64)
+    y = np.asarray(y)
+    rng = np.random.default_rng(seed)
+    folds = [[] for _ in range(n_splits)]
+    for c in np.unique(y):  # stratified
+        idx = rng.permutation(np.where(y == c)[0])
+        for i, chunk in enumerate(np.array_split(idx, n_splits)):
+            folds[i].extend(chunk.tolist())
+    folds = [np.array(f) for f in folds]
+
+    def cv_score(cols):
+        s = []
+        for i in range(n_splits):
+            va = folds[i]
+            tr = np.concatenate([folds[k] for k in range(n_splits) if k != i])
+            m = make_model().fit(X[tr][:, cols], y[tr])
+            s.append(macro_f1(y[va], m.predict(X[va][:, cols])))
+        return float(np.mean(s))
+
+    cols = list(range(X.shape[1]))
+    current, history = cv_score(cols), []
+    while len(cols) > 1:
+        score, drop = max((cv_score([c for c in cols if c != j]), j) for j in cols)
+        if score <= current + tol:
+            break
+        cols.remove(drop)
+        current = score
+        history.append((drop, score))
+    return cols, history
