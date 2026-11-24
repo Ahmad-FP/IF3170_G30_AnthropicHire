@@ -10,7 +10,7 @@ from sklearn.feature_selection import mutual_info_classif
 from sklearn.metrics import f1_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
+from sklearn.svm import SVC, LinearSVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression as SkLogisticRegression
 
@@ -32,6 +32,12 @@ OUT = ROOT / "output"
 def load_split(name: str):
     data = np.load(PREP / f"{name}.npz")
     return data["X"], data["y"]
+
+
+def svm_subset(model, X, y):
+    """Rows exactly as the scratch SVM sees them (same stratified subsample)."""
+    _, _, idx = model._subsample(X, y, model.max_samples)
+    return X[idx], y[idx]
 
 
 def run(name: str, model, X_train, y_train, X_val, y_val, results: list, save: bool = True):
@@ -87,7 +93,7 @@ def main() -> None:
 
     run(
         "dtl_scratch",
-        DecisionTree(criterion="entropy", max_depth=12, min_samples_leaf=5),
+        DecisionTree(max_depth=12, min_samples_leaf=5),
         X_train,
         y_train,
         X_val,
@@ -144,66 +150,69 @@ def main() -> None:
     )
     run(
         "svm_linear_sklearn",
-        SVC(kernel="linear", C=1.0),
-        X_train[knn_idx],
-        y_train[knn_idx],
+        LinearSVC(loss="hinge", C=1.0, random_state=42),
+        X_train,
+        y_train,
         X_val,
         y_val,
         results,
         save=False,
     )
 
+    svm_gauss = SVM(
+        kernel="gaussian",
+        C=1.0,
+        gamma=0.15,
+        learning_rate=0.05,
+        epochs=30,
+        max_samples=2000,
+    )
     run(
         "svm_gaussian_scratch",
-        SVM(
-            kernel="gaussian",
-            C=1.0,
-            gamma=0.15,
-            learning_rate=0.05,
-            epochs=200,
-            max_samples=2000,
-        ),
+        svm_gauss,
         X_train,
         y_train,
         X_val,
         y_val,
         results,
     )
+    Xg, yg = svm_subset(svm_gauss, X_train, y_train)
     run(
         "svm_gaussian_sklearn",
-        SVC(kernel="rbf", C=1.0, gamma=0.05),
-        X_train[knn_idx],
-        y_train[knn_idx],
+        SVC(kernel="rbf", C=1.0, gamma=0.15),
+        Xg,
+        yg,
         X_val,
         y_val,
         results,
         save=False,
     )
 
-    poly_idx = rng.choice(len(X_train), 2000, replace=False)
+    svm_poly = SVM(
+        kernel="poly",
+        degree=3,
+        coef0=1.0,
+        gamma=0.1,
+        C=1.0,
+        learning_rate=0.05,
+        epochs=30,
+        max_samples=2000,
+    )
     run(
         "svm_poly_scratch",
-        SVM(
-            kernel="poly",
-            degree=3,
-            coef0=1.0,
-            gamma=0.1,
-            C=1.0,
-            learning_rate=0.05,
-            epochs=200,
-            max_samples=2000,
-        ),
+        svm_poly,
         X_train,
         y_train,
         X_val,
         y_val,
         results,
     )
+    Xp, yp = svm_subset(svm_poly, X_train, y_train)
     run(
         "svm_poly_sklearn",
         SVC(kernel="poly", degree=3, coef0=1.0, gamma=0.1, C=1.0),
-        X_train[poly_idx],
-        y_train[poly_idx],
+        Xp,
+        yp,
         X_val,
         y_val,
         results,
