@@ -78,6 +78,8 @@ class SVM(PersistableMixin):
                 if y_pm[i] * (X[i] @ w + b) < 1.0:
                     w = (1.0 - self.learning_rate * lam) * w + self.learning_rate * y_pm[i] * X[i]
                     b += self.learning_rate * y_pm[i]
+                else:
+                    w *= 1.0 - self.learning_rate * lam
 
         decision = X @ w + b
         support = np.flatnonzero(y_pm * decision <= 1.0 + 1e-6)
@@ -106,9 +108,10 @@ class SVM(PersistableMixin):
             order = rng.permutation(len(Xb))
             for i in order:
                 if y_pm[i] * f[i] < 1.0:
-                    alpha[i] = min(self.C, alpha[i] + self.learning_rate)
+                    delta = min(self.C, alpha[i] + self.learning_rate) - alpha[i]
+                    alpha[i] += delta
                     b += self.learning_rate * y_pm[i]
-                    f += self.learning_rate * y_pm[i] * K[:, i] + self.learning_rate * y_pm[i]
+                    f += delta * y_pm[i] * K[:, i] + self.learning_rate * y_pm[i]
 
         support = np.flatnonzero(alpha > 1e-6)
         return {

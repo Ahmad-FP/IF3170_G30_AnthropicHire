@@ -61,7 +61,7 @@ def build_models() -> list[tuple[str, object, int | None]]:
     """(name, model, train cap). Caps only limit memory-heavy models."""
     return [
         ("knn", KNN(k=9, p=2, weights="distance"), KNN_TRAIN_CAP),
-        ("decision_tree", DecisionTree(criterion="entropy", max_depth=12, min_samples_leaf=5), None),
+        ("decision_tree", DecisionTree(max_depth=12, min_samples_leaf=5), None),
         (
             "logistic_regression",
             LogisticRegression(

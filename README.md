@@ -1,7 +1,25 @@
 # Tubes 2 AI — AnthropicHire
 
-Tugas Besar 2 IF3170 Inteligensi Artifisial 2026/2027 — supervised learning
+Tugas Besar 2 IF3170 Inteligensi Artifisial 2026/2027: Supervised Learning
 from scratch untuk kompetisi Kaggle `T2-IF3170-2026-2027` (metrik macro F1).
+
+## Pembagian Tugas
+
+Ega Luthfi Rais 13524115: Data dan Integrasi 
+Tugas Utama :cleaning, transformasi, fitur baru, feature selection, PCA, split dan validasi, notebook utama, submission Kaggle, cek reproducibility
+
+Muhammad Hartawan Haidir 13524147 : KNN + Naive Bayes 
+Tugas Utama : Keduanya from scratch dan versi scikit-learn
+
+
+Ahmad Fauzan Putra 13524141 : Decision Tree
+Tugas Utama : ID3, C4.5, atau CART; numerik, kategorikal, null; versi scikit-learn
+
+Jonathan Harijadi 13524144 : Logistic Regression 
+Tugas Utama : L1, L2, Elastic Net, versi scikit-learn, grafik log-loss
+
+Faris Wirakusuma Triawan 13524130: SVM
+Tugas Utama : Kernel linear, polynomial, gaussian, versi scikit-learn
 
 ## Struktur
 

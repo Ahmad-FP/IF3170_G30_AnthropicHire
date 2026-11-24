@@ -144,7 +144,7 @@ class DataPreprocessor:
         guest_count = (out["num_adults"].fillna(0) + out["num_children"].fillna(0)).replace(0, np.nan)
 
         out["has_children"] = (out["num_children"].fillna(0) > 0).astype(int)
-        out["is_family"] = (out["num_children"].fillna(0) > 0).astype(int)
+        out["is_family"] = ((out["num_adults"].fillna(0) >= 2) & (out["num_children"].fillna(0) > 0)).astype(int)
         out["arrival_quarter"] = ((out["arrival_month"] - 1) // 3 + 1).astype(int)
         out["is_high_season"] = out["arrival_month"].isin([6, 7, 8, 12]).astype(int)
         out["days_before_arrival_log"] = np.log1p(out["days_before_arrival"].clip(lower=0))
@@ -298,7 +298,8 @@ class DataPreprocessor:
 
     def fit_transform(self, df: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
         self.fit(df)
-        return self.transform(df), df[TARGET].to_numpy()
+        clean = self._clean(df, drop_duplicates=True)
+        return self.transform(clean), clean[TARGET].to_numpy()
 
     # ---------------------------------------------------------------- io
     def save(self, path: str | Path) -> None:

@@ -105,7 +105,7 @@ class LogisticRegression(PersistableMixin):
                 W -= self.learning_rate * grad
                 epoch_loss += data_loss * len(batch)
 
-            epoch_loss /= n_samples
+            epoch_loss = epoch_loss / n_samples + self._regularization_loss(W)
             self.loss_history_.append(float(epoch_loss))
             if len(self.loss_history_) > 1:
                 if abs(self.loss_history_[-2] - self.loss_history_[-1]) < self.tolerance:

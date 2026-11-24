@@ -92,8 +92,9 @@ class CategoricalNaiveBayes(NaiveBayes):
         edges = []
         for j in range(X.shape[1]):
             uniq = np.unique(X[:, j])
-            if len(uniq) <= self.n_bins: 
+            if len(uniq) <= self.n_bins:
                 e = (uniq[:-1] + uniq[1:]) / 2.0
+            else:
                 e = np.unique(np.quantile(X[:, j], np.linspace(0, 1, self.n_bins + 1)[1:-1]))
             edges.append(e)
         return edges
